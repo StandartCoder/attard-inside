@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTheme as useThemeStore, accentColors } from '@/lib/theme';
+import { accentColors } from '@/lib/theme';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Logo } from '@/components/logo';
 import { Eye, EyeOff, CheckCircle2 } from 'lucide-react';
@@ -27,11 +27,8 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(3);
-  const { accentColor } = useThemeStore();
   const colors = accentColors['indigo'];
   const [showPassword, setShowPassword] = useState(false);
-  const [revealAnim, setRevealAnim] = useState<'none' | 'fading-in' | 'fading-out'>('none');
-  const passwordRef = useRef<HTMLInputElement>(null);
 
   // Responsive logo size
   const [logoSize, setLogoSize] = useState(72);
@@ -60,11 +57,9 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
-  const passwordValue = watch('password');
 
   const { status } = useSession();
   
@@ -136,7 +131,7 @@ export default function LoginPage() {
       // Show success message and start countdown instead of immediate redirect
       handleLoginSuccess();
       
-    } catch (error) {
+    } catch {
       setError('An error occurred. Please try again.');
       setIsLoading(false);
     }

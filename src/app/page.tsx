@@ -42,7 +42,7 @@ export default function DashboardPage() {
       >
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Welcome to A&Co Insight Hub</h2>
         <p className="text-gray-600 dark:text-gray-400">
-          This dashboard provides you with a comprehensive view of your business's key metrics and performance indicators.
+          This dashboard provides you with a comprehensive view of your business&apos;s key metrics and performance indicators.
           You can monitor analytics, inventory levels, and logistics operations all in one place.
         </p>
       </motion.div>

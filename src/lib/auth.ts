@@ -4,7 +4,6 @@ import { db } from './db';
 import { users } from './db/schema';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
-import { JWT } from 'next-auth/jwt';
 
 // Extend the built-in session types
 declare module "next-auth" {

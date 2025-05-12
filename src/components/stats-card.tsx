@@ -20,7 +20,7 @@ export function StatsCard({
   icon: Icon,
   description,
 }: StatsCardProps) {
-  const { accentColor, theme } = useTheme();
+  const { accentColor } = useTheme();
   const colors = accentColors[accentColor];
   
   return (

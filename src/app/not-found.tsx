@@ -25,7 +25,7 @@ export default function NotFound() {
             <div className={`text-8xl font-bold ${colors.text} mb-6`}>404</div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Page Not Found</h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-              We couldn't find the page you're looking for.
+              We couldn&apos;t find the page you&apos;re looking for.
             </p>
             <Link
               href="/"

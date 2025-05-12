@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
-import { User, Mail, AtSign, Edit } from 'lucide-react';
+import { Mail, AtSign, Edit } from 'lucide-react';
 import { useTheme as useThemeStore, accentColors } from '@/lib/theme';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
+import Image from 'next/image';
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -31,9 +31,11 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
             <div className={`h-24 w-24 rounded-full ${colors.bg} flex items-center justify-center overflow-hidden border-2 border-gray-200 dark:border-gray-700`}>
               {session?.user?.image ? (
-                <img 
+                <Image 
                   src={session.user.image} 
                   alt={fullName} 
+                  width={96}
+                  height={96}
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -106,4 +108,4 @@ export default function ProfilePage() {
       </div>
     </DashboardLayout>
   );
-} 
+}
