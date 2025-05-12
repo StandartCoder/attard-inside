@@ -9,8 +9,7 @@
     "lint": "next lint",
     "db:init": "tsx src/scripts/init-db.ts",
     "db:generate": "drizzle-kit generate:sqlite",
-    "db:push": "drizzle-kit push:sqlite",
-    "db:migrate-users": "tsx src/scripts/migrate-users.ts"
+    "db:push": "drizzle-kit push:sqlite"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.2",
