@@ -67,12 +67,6 @@ export async function FromCSVToProductsDB(filePath: string) {
   console.log(`✅ ${mapped.length} Produkte erfolgreich eingefügt.`);
 
 
-  const rows = await db.select().from(products);
-  rows.forEach((row, index) => {
-  console.log(`Produkt ${index + 1}:`);
-  console.log(`Name: ${row.name}`);
-  console.log(`Preis: ${row.price} €`);
-  console.log('-----------------------------');
-});
+  
 
 }
