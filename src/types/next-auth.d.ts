@@ -22,4 +22,6 @@ declare module "next-auth" {
       permission?: number;
     };
   }
+
+  interface NextAuthConfig {}
 }

@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { text, integer, sqliteTable } from 'drizzle-orm/sqlite-core';
+import { text, integer, sqliteTable, real } from 'drizzle-orm/sqlite-core';
 
 // Users table schema
 export const users = sqliteTable('users', {
@@ -31,6 +31,42 @@ export const sessions = sqliteTable('sessions', {
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const products = sqliteTable('products', {
+  handleId: text('handle_id').primaryKey(),
+
+  productId: text('product_id').notNull(), // entspricht z.B. "product_1cc4562a-88ec-2eef-f3f5-d92ce751eac7"
+  fieldType: text('field_type').notNull(), // z.B. "Product"
+  name: text('name').notNull(),
+  description: text('description'),
+  productImageUrl: text('product_image_url'), // mehrere URLs durch ; getrennt
+  collection: text('collection'),
+  sku: text('sku'),
+  ribbon: text('ribbon'),
+
+  price: real('price').notNull(),           // z.B. 6.15
+  surcharge: real('surcharge'),            // optional
+  visible: integer('visible').notNull().default(1), // boolean: 1 = true, 0 = false
+
+  discountMode: text('discount_mode'),     // z.B. "PERCENT"
+  discountValue: real('discount_value').default(0.0),
+
+  inventory: integer('inventory').default(0),
+  weight: real('weight'),
+  cost: real('cost'),
+
+  type: text('type'),                      // z.B. "inventory"
+  taxOnSale: text('tax_on_sale'),         // z.B. "VAT 18%"
+  priceIncludeTax: integer('price_include_tax').default(0), // boolean
+  incomeAccount: text('income_account'),
+
+  taxOnPurchase: text('tax_on_purchase'),
+  purchaseCostIncludeTax: integer('purchase_cost_include_tax').default(0), // boolean
+  expenseAccount: text('expense_account'),
+
+  reorderPoint: integer('reorder_point').default(0),
+  quantityAsOfDate: text('quantity_as_of_date') // z.B. "13/05/2025"
 });
 
 // Types for our schema

@@ -32,5 +32,34 @@ export async function initDatabase() {
       created_at INTEGER NOT NULL DEFAULT (unixepoch()),
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS products (
+      handle_id TEXT PRIMARY KEY,
+      product_id TEXT NOT NULL,
+      field_type TEXT NOT NULL,
+      name TEXT NOT NULL,
+      description TEXT,
+      product_image_url TEXT,
+      collection TEXT,
+      sku TEXT,
+      ribbon TEXT,
+      price REAL NOT NULL,
+      surcharge REAL,
+      visible INTEGER NOT NULL DEFAULT 1,
+      discount_mode TEXT,
+      discount_value REAL DEFAULT 0.0,
+      inventory INTEGER DEFAULT 0,
+      weight REAL,
+      cost REAL,
+      type TEXT,
+      tax_on_sale TEXT,
+      price_include_tax INTEGER DEFAULT 0,
+      income_account TEXT,
+      tax_on_purchase TEXT,
+      purchase_cost_include_tax INTEGER DEFAULT 0,
+      expense_account TEXT,
+      reorder_point INTEGER DEFAULT 0,
+      quantity_as_of_date TEXT
+    );
   `);
 } 

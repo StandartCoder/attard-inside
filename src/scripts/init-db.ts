@@ -34,7 +34,6 @@ async function main() {
       console.log('Admin user already exists.');
     }
 
-    process.exit(0);
   } catch (error) {
     console.error('Error initializing database:', error);
     process.exit(1);
