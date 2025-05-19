@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -19,7 +19,8 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+// Separate component for the login form to use with Suspense
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
@@ -33,7 +34,7 @@ export default function LoginPage() {
   // Responsive logo size
   const [logoSize, setLogoSize] = useState(72);
 
-  // Update logo size based on screen width
+  // Rest of your existing component logic
   useEffect(() => {
     const updateLogoSize = () => {
       if (window.innerWidth >= 1024) { // lg breakpoint
@@ -182,6 +183,7 @@ export default function LoginPage() {
                 transition={{ duration: 0.3 }}
                 className="w-full px-2 sm:px-4 my-4 sm:my-6 md:my-8"
               >
+                {/* Rest of your success UI */}
                 <motion.div 
                   className="w-full flex items-center p-3 sm:p-4 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 shadow-md"
                   initial={{ x: 0 }}
@@ -216,6 +218,7 @@ export default function LoginPage() {
                 className="w-full space-y-4 sm:space-y-6"
                 onSubmit={handleSubmit(onSubmit)}
               >
+                {/* Rest of your form UI */}
                 <div className="space-y-3 sm:space-y-4">
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -344,4 +347,17 @@ export default function LoginPage() {
       </div>
     </div>
   );
-} 
+}
+
+// Main Page component with Suspense boundary
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
+  );
+}
