@@ -12,6 +12,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/logo';
 import { Menu as HeadlessMenu, Transition } from '@headlessui/react';
+import type { Session } from 'next-auth';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -19,7 +20,10 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, title = 'Dashboard' }: DashboardLayoutProps) {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession() as { 
+    data: Session | null;
+    status: "loading" | "authenticated" | "unauthenticated";
+  };
   const router = useRouter();
   const { accentColor } = useThemeStore();
   const colors = accentColors[accentColor];
@@ -297,4 +301,4 @@ export function DashboardLayout({ children, title = 'Dashboard' }: DashboardLayo
       </main>
     </div>
   );
-} 
+}

@@ -1,7 +1,6 @@
-import type { NextAuthConfig, Session, User } from 'next-auth';
+import type { Session, User } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import type { JWT } from 'next-auth/jwt';
-
 import { db } from './db';
 import { users } from './db/schema';
 import { eq } from 'drizzle-orm';
@@ -21,7 +20,6 @@ declare module 'next-auth' {
       permission?: number;
     };
   }
-
   interface User {
     id: string;
     firstName?: string | null;
@@ -45,7 +43,28 @@ declare module 'next-auth/jwt' {
   }
 }
 
-export const authOptions: NextAuthConfig = {
+type NextAuthOptions = {
+  providers: unknown[];
+  session: {
+    strategy: 'jwt';
+    maxAge: number;
+  };
+  jwt: {
+    maxAge: number;
+  };
+  pages: {
+    signIn: string;
+    error: string;
+  };
+  callbacks: {
+    jwt: (params: { token: JWT; user?: User }) => Promise<JWT>;
+    session: (params: { session: Session; token: JWT }) => Promise<Session>;
+  };
+  debug?: boolean;
+  secret?: string;
+};
+
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -55,16 +74,17 @@ export const authOptions: NextAuthConfig = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
-
+        
         const user = await db.query.users.findFirst({
           where: eq(users.email, credentials.email),
         });
-
+        
         if (!user) return null;
-
+        
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+        
         if (!isPasswordValid) return null;
-
+        
         return {
           id: user.id,
           email: user.email,
@@ -78,7 +98,7 @@ export const authOptions: NextAuthConfig = {
     }),
   ],
   session: {
-    strategy: 'jwt',
+    strategy: 'jwt', // Using a literal value instead of a string variable
     maxAge: 30 * 24 * 60 * 60,
   },
   jwt: {

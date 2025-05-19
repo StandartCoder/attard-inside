@@ -6,18 +6,21 @@ import { Mail, AtSign, Edit } from 'lucide-react';
 import { useTheme as useThemeStore, accentColors } from '@/lib/theme';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import Image from 'next/image';
+import type { Session } from 'next-auth';
 
 export default function ProfilePage() {
-  const { data: session } = useSession();
+  const { data: session } = useSession() as { data: Session | null };
   const { accentColor } = useThemeStore();
   const colors = accentColors[accentColor];
   
-  // Extract user info
-  const firstName = session?.user?.name?.split(' ')[0] || '';
-  const lastName = session?.user?.name?.split(' ')[1] || '';
-  const fullName = session?.user?.name || 'User';
+  // Extract user info - fallback to name if firstName/lastName not available
+  const firstName = session?.user?.firstName || (session?.user?.name ? session?.user?.name.split(' ')[0] : '') || '';
+  const lastName = session?.user?.lastName || (session?.user?.name && session?.user?.name.split(' ').length > 1 ? session?.user?.name.split(' ')[1] : '');
+  const fullName = session?.user?.firstName && session?.user?.lastName 
+    ? `${session.user.firstName} ${session.user.lastName}` 
+    : session?.user?.name || 'User';
   const initials = `${firstName.charAt(0)}${lastName ? `.${lastName.charAt(0)}` : ''}`;
-  const username = session?.user?.email?.split('@')[0] || 'user';
+  const username = session?.user?.username || session?.user?.email?.split('@')[0] || 'user';
   const email = session?.user?.email || '';
   
   return (
