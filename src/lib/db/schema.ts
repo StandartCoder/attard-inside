@@ -66,7 +66,9 @@ export const products = sqliteTable('products', {
   expenseAccount: text('expense_account'),
 
   reorderPoint: integer('reorder_point').default(0),
-  quantityAsOfDate: text('quantity_as_of_date') // z.B. "13/05/2025"
+  quantityAsOfDate: text('quantity_as_of_date'), // z.B. "13/05/2025"
+
+  associatedCompany: text('associated_company')
 });
 
 // Types for our schema

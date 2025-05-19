@@ -59,7 +59,8 @@ export async function initDatabase() {
       purchase_cost_include_tax INTEGER DEFAULT 0,
       expense_account TEXT,
       reorder_point INTEGER DEFAULT 0,
-      quantity_as_of_date TEXT
+      quantity_as_of_date TEXT,
+      associated_company TEXT
     );
   `);
 } 
