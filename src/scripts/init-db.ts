@@ -8,30 +8,45 @@ async function main() {
     // Initialize database tables
     await initDatabase();
 
-    // Check if admin user exists
-    const adminExists = await db.query.users.findFirst({
-      where: (users, { eq }) => eq(users.email, 'admin@attard.com'),
+    // Check if root user exists
+    const rootExists = await db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.email, 'root@attardco.com'),
     });
 
-    if (!adminExists) {
-      // Create default admin user
-      const hashedPassword = await bcrypt.hash('admin123', 10);
+    if (!rootExists) {
+      // Create default root user
+      const hashedPassword = await bcrypt.hash('root123', 10);
+      const hashedPassword2 = await bcrypt.hash('worker123', 10);
       await db.insert(users).values({
         id: uuidv4(),
-        firstName: 'Admin',
+        firstName: 'Root',
         lastName: 'User',
-        username: 'admin',
-        email: 'admin@attard.com',
+        username: 'root',
+        email: 'root@attardco.com',
         password: hashedPassword,
         permission: 7,
         settings: '{}',
         view: '{}',
-        changePasswordOnNext: 1,
+        changePasswordOnNext: 0,
       });
 
-      console.log('Default admin user created successfully!');
+      await db.insert(users).values({
+        id: uuidv4(),
+        firstName: 'Worker',
+        lastName: 'User',
+        username: 'worker',
+        email: 'worker@attardco.com',
+        password: hashedPassword2,
+        permission: 2,
+        settings: '{}',
+        view: '{}',
+        changePasswordOnNext: 0,
+      });
+
+      console.log('Default root user created successfully!');
+      console.log('Default worker user created successfully!');
     } else {
-      console.log('Admin user already exists.');
+      console.log('Root user already exists.');
     }
     process.exit(0);
   } catch (error) {

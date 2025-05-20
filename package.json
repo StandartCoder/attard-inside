@@ -2,6 +2,10 @@
   "name": "attard-insight-hub",
   "version": "0.1.0",
   "private": true,
+  "authors": [
+    "Marc Peater",
+    "Johannes Zincke"
+  ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

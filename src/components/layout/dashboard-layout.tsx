@@ -4,7 +4,7 @@ import { ReactNode, Fragment } from 'react';
 import { motion } from 'framer-motion';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { User, LogOut, Settings, Home, Menu, X } from 'lucide-react';
+import { User, LogOut, Settings, Home, Menu, X, Building2, Users, BarChart3, Lock, Package, Workflow, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { useTheme as useThemeStore, accentColors } from '@/lib/theme';
@@ -14,12 +14,111 @@ import { Logo } from '@/components/logo';
 import { Menu as HeadlessMenu, Transition } from '@headlessui/react';
 import type { Session } from 'next-auth';
 
+interface NavItem {
+  name: string;
+  href: string;
+  icon: React.ElementType;
+  requiredPermission: number;
+  description: string;
+  color: string;
+  stats?: {
+    value: string | number;
+    label: string;
+    change?: {
+      value: number;
+      isPositive: boolean;
+    };
+  };
+}
+
+const navigation: NavItem[] = [
+  {
+    name: 'Companies',
+    href: '/companies',
+    icon: Building2,
+    requiredPermission: 1,
+    description: 'Manage and view company insights',
+    color: 'from-blue-500 to-blue-600',
+    stats: {
+      value: '12',
+      label: 'Active Companies',
+      change: { value: 2, isPositive: true }
+    }
+  },
+  {
+    name: 'Overall Insights',
+    href: '/insights',
+    icon: BarChart3,
+    requiredPermission: 1,
+    description: 'View combined analytics and reports',
+    color: 'from-purple-500 to-purple-600',
+    stats: {
+      value: '84%',
+      label: 'Performance',
+      change: { value: 12, isPositive: true }
+    }
+  },
+  {
+    name: 'Inventory',
+    href: '/inventory',
+    icon: Package,
+    requiredPermission: 1,
+    description: 'Track and manage product inventory',
+    color: 'from-green-500 to-green-600',
+    stats: {
+      value: '278',
+      label: 'Active Products',
+      change: { value: 3, isPositive: false }
+    }
+  },
+  {
+    name: 'Logistics',
+    href: '/logistics',
+    icon: Workflow,
+    requiredPermission: 1,
+    description: 'Monitor deliveries and operations',
+    color: 'from-orange-500 to-orange-600',
+    stats: {
+      value: '94',
+      label: 'Deliveries',
+      change: { value: 7, isPositive: true }
+    }
+  },
+  {
+    name: 'Documents',
+    href: '/documents',
+    icon: FileText,
+    requiredPermission: 1,
+    description: 'Access and manage important documents',
+    color: 'from-red-500 to-red-600',
+    stats: {
+      value: '156',
+      label: 'Total Documents',
+      change: { value: 5, isPositive: true }
+    }
+  },
+  {
+    name: 'User Management',
+    href: '/users',
+    icon: Users,
+    requiredPermission: 3,
+    description: 'Manage system users and permissions',
+    color: 'from-indigo-500 to-indigo-600',
+    stats: {
+      value: '24',
+      label: 'Active Users',
+      change: { value: 1, isPositive: true }
+    }
+  }
+];
+
 interface DashboardLayoutProps {
   children: ReactNode;
   title?: string;
+  sidebar?: boolean;
 }
 
-export function DashboardLayout({ children, title = 'Dashboard' }: DashboardLayoutProps) {
+export function DashboardLayout({ children, title = 'Dashboard', sidebar = false }: DashboardLayoutProps) {
   const { data: session, status } = useSession() as { 
     data: Session | null;
     status: "loading" | "authenticated" | "unauthenticated";
@@ -28,8 +127,9 @@ export function DashboardLayout({ children, title = 'Dashboard' }: DashboardLayo
   const { accentColor } = useThemeStore();
   const colors = accentColors[accentColor];
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
 
-  // Extract user info - fallback to name if firstName/lastName not available
+  // Extract user info
   const firstName = session?.user?.firstName || (session?.user?.name ? session?.user?.name.split(' ')[0] : '') || '';
   const lastName = session?.user?.lastName || (session?.user?.name && session?.user?.name.split(' ').length > 1 ? session?.user?.name.split(' ')[1] : '');
   const fullName = session?.user?.firstName && session?.user?.lastName 
@@ -37,18 +137,18 @@ export function DashboardLayout({ children, title = 'Dashboard' }: DashboardLayo
     : session?.user?.name || '';
   
   const nameParts = fullName.split(' ');
-  
-  // Generate initials from all parts of the name
-  const initials = nameParts
-    .map(part => part.charAt(0))
-    .join('')
-    .toUpperCase();
-  
-  // Format display name as "FirstName L."
+  const initials = nameParts.map(part => part.charAt(0)).join('').toUpperCase();
   const displayName = firstName + (lastName ? ` ${lastName.charAt(0)}.` : '');
-  
-  // Use username from new schema if available, otherwise extract from email
   const username = session?.user?.username || session?.user?.email?.split('@')[0] || 'user';
+  const userPermission = session?.user?.permission || 1;
+
+  const handleNavigation = (href: string, requiredPermission: number) => {
+    if (userPermission < requiredPermission) {
+      return;
+    }
+    setIsNavigating(true);
+    router.push(href);
+  };
 
   if (status === 'loading') {
     return (
@@ -243,30 +343,26 @@ export function DashboardLayout({ children, title = 'Dashboard' }: DashboardLayo
               </div>
               
               <div className="flex flex-col pt-4 pb-2 space-y-1 border-t border-gray-200 dark:border-gray-800">
-                <Link
-                  href="/"
-                  className={`flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-lg hover:${colors.light} dark:hover:${colors.dark} hover:${colors.text}`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Home size={18} />
-                  <span>Dashboard</span>
-                </Link>
-                <Link
-                  href="/profile"
-                  className={`flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-lg hover:${colors.light} dark:hover:${colors.dark} hover:${colors.text}`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <User size={18} />
-                  <span>Profile</span>
-                </Link>
-                <Link
-                  href="/settings"
-                  className={`flex items-center gap-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-lg hover:${colors.light} dark:hover:${colors.dark} hover:${colors.text}`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Settings size={18} />
-                  <span>Settings</span>
-                </Link>
+                {navigation.map((item) => {
+                  const hasPermission = userPermission >= item.requiredPermission;
+                  return (
+                    <button
+                      key={item.name}
+                      onClick={() => handleNavigation(item.href, item.requiredPermission)}
+                      disabled={!hasPermission}
+                      className={`flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-all duration-200
+                        ${hasPermission 
+                          ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' 
+                          : 'text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-50 blur-[0.5px]'}`}
+                    >
+                      <item.icon className={`h-5 w-5 ${hasPermission ? colors.text : 'text-gray-400'}`} />
+                      <span>{item.name}</span>
+                      {!hasPermission && (
+                        <Lock className="ml-auto h-4 w-4 text-gray-400" />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
               
               <Button
@@ -284,21 +380,84 @@ export function DashboardLayout({ children, title = 'Dashboard' }: DashboardLayo
         </motion.div>
       )}
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 sm:px-0">
-          {title && (
-            <motion.h1
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-2xl font-bold text-gray-900 dark:text-white mb-6"
-            >
-              {title}
-            </motion.h1>
-          )}
-          {children}
+      {sidebar ? (
+        <div className="flex">
+          {/* Sidebar */}
+          <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 md:pt-16">
+            <div className="flex-1 flex flex-col min-h-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-r border-gray-200 dark:border-gray-800">
+              <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+                <nav className="mt-5 flex-1 px-2 space-y-1">
+                  {navigation.map((item) => {
+                    const hasPermission = userPermission >= item.requiredPermission;
+                    return (
+                      <div key={item.name} className="relative group">
+                        <button
+                          onClick={() => handleNavigation(item.href, item.requiredPermission)}
+                          disabled={!hasPermission}
+                          className={`w-full flex items-center px-2 py-2 text-sm font-medium rounded-lg transition-all duration-200
+                            ${hasPermission 
+                              ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800' 
+                              : 'text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-50 blur-[0.5px]'}`}
+                        >
+                          <item.icon className={`mr-3 h-5 w-5 ${hasPermission ? colors.text : 'text-gray-400'}`} />
+                          {item.name}
+                          {!hasPermission && (
+                            <Lock className="ml-2 h-4 w-4 text-gray-400" />
+                          )}
+                        </button>
+                        <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-900 ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                          <div className="py-1">
+                            <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">
+                              {item.description}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </nav>
+              </div>
+            </div>
+          </div>
+          {/* Main Content with sidebar */}
+          <div className="md:pl-64 flex flex-col flex-1">
+            <main className="flex-1">
+              <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <div className="px-4 sm:px-0">
+                  {title && (
+                    <motion.h1
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-2xl font-bold text-gray-900 dark:text-white mb-6"
+                    >
+                      {title}
+                    </motion.h1>
+                  )}
+                  {children}
+                </div>
+              </div>
+            </main>
+          </div>
         </div>
-      </main>
+      ) : (
+        // No sidebar, just main content (dashboard hub)
+        <main className="flex-1">
+          <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div className="px-4 sm:px-0">
+              {title && (
+                <motion.h1
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-2xl font-bold text-gray-900 dark:text-white mb-6"
+                >
+                  {title}
+                </motion.h1>
+              )}
+              {children}
+            </div>
+          </div>
+        </main>
+      )}
     </div>
   );
 }
