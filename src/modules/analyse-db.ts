@@ -54,8 +54,6 @@ export async function getTopPricedProducts(limit = 5) {
     .slice(0, limit);
 }
 
-
-
 export async function getOutOfStockProducts() {
   const rows = await db.select().from(products);
   return rows.filter(p => (p.inventory ?? 0) === 0);
@@ -93,8 +91,9 @@ export async function getStaleStock(thresholdDateISO: string) {
   });
 }
 
-
-
-
+export async function getTotalStockWeight() {
+  const rows = await db.select().from(products);
+  return rows.reduce((sum, p) => sum + (p.weight ?? 0) * (p.inventory ?? 0), 0);
+}
 
 getProducts().catch(console.error);
