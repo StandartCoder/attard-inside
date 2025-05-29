@@ -1,19 +1,22 @@
-import { FromCSVToProductsDB } from '../modules/read-csv';
+import { FromCSVToProductsDB, setCompany } from '../modules/read-csv';
 import { clearTable } from '../modules/clear-table';
 import * as analyse from '../modules/analyse-db';
 import { db } from '@/lib/db'; // oder direkt der Pfad zu drizzle instance
 import { products } from '@/lib/db/schema';
 
-(async () => {  
-  //await AddProducts();
 
+
+(async () => {  
   //await ClearTable();
+
+  //await AddProducts();
 
   await TestOutput();
 })();
 
 export async function AddProducts() {
   console.log(`=== add products ===`);
+  setCompany('temporary firm');
   await FromCSVToProductsDB('./public/catalog_products.csv');
 }
 
@@ -37,7 +40,7 @@ export async function TestOutput() {
   //console.log('products per collection:');
   //for (const [collection, count] of Object.entries((await analyse.getProductsPerCollection()))) {console.log(`  ${collection}: ${count}`);}
   console.log(`most expensive products:`);
-  (await analyse.getTopPricedProducts(5)).forEach(p => {console.log(`- ${p.name}: ${p.price} €`)});
+  (await analyse.getTopPricedProducts(5)).forEach(p => {console.log(`- ${p.name}: ${p.price} € | ${p.associatedCompany}`)});
   //console.log(`lowest stock products:`);
   //(await analyse.getLowStockProducts(1)).forEach(p => {console.log(`- ${p.name} ${p.inventory} Stück`)});
 

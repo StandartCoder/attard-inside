@@ -4,6 +4,16 @@ import { parse } from 'csv-parse';
 import { db } from '@/lib/db'; // oder direkt der Pfad zu drizzle instance
 import { products } from '@/lib/db/schema';
 
+export let company = '';
+
+export function setCompany(value: string) {
+  company = value;
+}
+
+export function getCompany() {
+  return company;
+}
+
 export async function FromCSVToProductsDB(filePath: string) {
   const fullPath = path.resolve(filePath);
   const fileContent = fs.readFileSync(fullPath, 'utf8');
@@ -54,7 +64,7 @@ export async function FromCSVToProductsDB(filePath: string) {
     expenseAccount: row.xxpenseAccount,
     reorderPoint: parseInt(row.reorderPoint || '0'),
     quantityAsOfDate: row['quantityAs-ofDate'],
-    associatedCompany: "currently nothing"
+    associatedCompany: company
   }));
 
   // In DB schreiben
@@ -65,8 +75,4 @@ export async function FromCSVToProductsDB(filePath: string) {
     await db.insert(products).values(batch);
   }
   console.log(`✅ ${mapped.length} Produkte erfolgreich eingefügt.`);
-
-
-  
-
 }
